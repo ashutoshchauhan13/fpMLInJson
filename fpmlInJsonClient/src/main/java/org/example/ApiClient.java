@@ -1,5 +1,6 @@
 package org.example;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 
 import java.io.IOException;
@@ -25,7 +26,6 @@ public class ApiClient {
             //Escaping is not needed as Gson library used escapes it
 //            String escapedJson = StringEscapeUtils
 //            escapeXml = StringEscapeUtils.escapeXml11(content);
-
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("ex= " + e.getMessage());
@@ -33,9 +33,7 @@ public class ApiClient {
         }
 
         clientRequest.setPayload(content);
-        // create a request
-        Gson gson = new Gson();
-        String jsonPayload = gson.toJson(clientRequest);
+        String jsonPayload = jsonFromObjUsingJackson(clientRequest);
         var request = HttpRequest.newBuilder(
                         URI.create("http://localhost:8080/trade"))
                 .header("accept", "application/json")
@@ -45,5 +43,17 @@ public class ApiClient {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         System.out.println(response.statusCode());
         System.out.println(response.body());
+    }
+
+    private String jsonFromObjUsingJackson(Object obj) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonInString = mapper.writeValueAsString(obj);
+        return jsonInString;
+    }
+
+    private String jsonFromObjUsingGson(Object obj) throws IOException {
+                Gson gson = new Gson();
+        String jsonInString = gson.toJson(obj);
+        return jsonInString;
     }
 }
